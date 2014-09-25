@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<project name="HTWScheduler" default="main" basedir=".">
+    <!-- ============================================================== -->
+    <property name="src.dir" location="src" />
+    <property name="lib.dir" location="lib" />
+    <property name="build.dir" location="build" />
+    <property name="jar.dir" location="jar" />
+    <property name="docs.dir" location="doc" />
+
+    <property name="author" value="munkulus" />
+    <property name="main-class" value="org.munkulus.htwscheduler.App" />
+    <property name="version" value="1.3" />
+    <property name="jar-file-name" value="HTWScheduler.jar" />
+    <!-- ============================================================== -->
+
+
+    <!-- Classpath erzeugen -->
+    <path id="build.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+
+    <!-- bestehende builds & docs loeschen -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${docs.dir}" />
+        <delete dir="${jar.dir}" />
+    </target>
+
+    <!-- Erzeugen der Verzeichnisse -->
+    <target name="makedir">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${docs.dir}" />
+        <mkdir dir="${jar.dir}" />
+    </target>
+    
+    <!-- compilieren -->
+    <target name="compile" depends="clean, makedir">
+        <echo> COMPILING FILES </echo>
+        <javac srcdir="${src.dir}" destdir="${build.dir}">
+            <classpath refid="build.classpath" />
+        </javac>
+    </target>
+    <!-- jar erzeugen -->
+    <target name="package" depends="compile">
+        <echo> BUILDING JAR FILE </echo>
+
+        <!-- classpath flatten -->
+        <pathconvert property="mf.classpath" pathsep=" ">
+            <path refid="build.classpath" />
+            <flattenmapper />
+        </pathconvert>
+
+        <!-- manifest erzeugen -->
+        <tstamp />
+        <manifest file="MANIFEST.MF">
+            <attribute name="Built-By" value="${author}" />
+            <attribute name="Create-By" value="${author}" />
+            <attribute name="Main-Class" value="${main-class}" />
+            <attribute name="Version" value="${version}" />
+            <attribute name="Built-Date" value="${TODAY}" />
+            <attribute name="Class-Path" value="${mf.classpath}" />
+        </manifest>
+
+        <fileset id="inc-jars" dir="${lib.dir}">
+            <include name="*.jar" />
+        </fileset>
+
+        <jar basedir="${build.dir}"
+             destfile="${jar.dir}/${jar-file-name}"
+             manifest="MANIFEST.MF">
+             <zipgroupfileset refid="inc-jars" />
+        </jar>
+        <!--
+         <copy todir="${jar.dir}">
+             <fileset dir="${lib.dir}">
+                 <include name="*.jar" />
+             </fileset>
+        </copy>
+        -->
+    </target>
+
+    <target name="main" depends="compile, package">
+        <echo> DONE BUILDING PROJECT HTWScheduler </echo>
+        <description>Main Target</description>
+    </target>
+
+</project>
+
